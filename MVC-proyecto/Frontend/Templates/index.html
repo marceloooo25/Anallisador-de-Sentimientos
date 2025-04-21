@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Análisis de Sentimientos</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Analizador de Sentimientos en Tweets</h1>
+        <textarea id="tweet-input" placeholder="Escribe tu tweet aquí..."></textarea>
+        <button onclick="analyze()">Analizar</button>
+        
+        <div id="results">
+            <h3>Resultado:</h3>
+            <div id="sentiment-bar"></div>
+            <p id="sentiment-text"></p>
+            <p id="processing-time"></p>
+        </div>
+    </div>
+
+    <script>
+    async function analyze() {
+        const tweet = document.getElementById("tweet-input").value.trim();
+        if (!tweet) return alert("Por favor ingresa un tweet");
+        
+        const startTime = performance.now();
+        
+        try {
+            const response = await fetch("/predict", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ tweet })
+            });
+            
+            if (!response.ok) throw new Error(await response.text());
+            
+            const data = await response.json();
+            updateResults(data, (performance.now() - startTime).toFixed(2));
+        } catch (error) {
+            console.error("Error:", error);
+            document.getElementById("results").innerHTML = `
+                <p style="color:red">Error: ${error.message}</p>
+            `;
+        }
+    }
+
+    function updateResults(data, time) {
+        const colors = {
+            positive: "#4CAF50",
+            negative: "#F44336",
+            neutral: "#FFC107"
+        };
+        
+        document.getElementById("sentiment-bar").style.backgroundColor = 
+            colors[data.sentiment] || "#9E9E9E";
+        document.getElementById("sentiment-text").innerHTML = 
+            `<strong>Sentimiento:</strong> ${data.sentiment}`;
+        document.getElementById("processing-time").innerHTML = 
+            `<strong>Tiempo:</strong> ${time} ms`;
+    }
+    </script>
+</body>
+</html>
