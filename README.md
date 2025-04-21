@@ -1,4 +1,4 @@
-# Anallisador-de-Sentimientos
+# Anallisador de Sentimientos
 Análisis de sentimientos en tweets con Naive Bayes | Flask + Python
 
 # Para iniciar el programa desde Visual Studio Code
